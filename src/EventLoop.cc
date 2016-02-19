@@ -6,8 +6,6 @@ EventLoop::EventLoop(vector<string> inputs)
   : MPILooper(inputs) { Setup(); }
 
 EventLoop::~EventLoop(){
-  this->Run();
-
   delete settings;
   delete simevent;
 }
@@ -78,8 +76,3 @@ void EventLoop::Process(const int& entry) {
 }
 
 
-void EventLoop::Run() {
-  for (int i=m_lowerbound; i<m_upperbound; i++) {
-    Process(i);
-  }
-}

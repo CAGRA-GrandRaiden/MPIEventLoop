@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
     "/mnt/analysis/rcnp-e441/sims/segcorrect/output10.root",
     "/mnt/analysis/rcnp-e441/sims/segcorrect/output11.root"
   });
-  
+  analyzer.Run();
   
 
   return 0;

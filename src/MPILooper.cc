@@ -72,15 +72,15 @@ void MPILooper::Finalize(){
 }
 
 void MPILooper::Run() {
+
   for (int i=m_lowerbound; i<m_upperbound; i++) {
     Process(i);
-  }
+  }  
+  this->Finalize();
+  MPI_Barrier(MPI_COMM_WORLD);
 }
 
 MPILooper::~MPILooper() {
-
-  this->Finalize();
-  MPI_Barrier(MPI_COMM_WORLD);
   if (m_rank==0){m_string.str(""); m_string << "rm -rf " << m_path; system(m_string.str().c_str());}
 
   delete m_selector;

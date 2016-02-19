@@ -11,7 +11,7 @@ public:
 
 private:
   virtual void Process(const int& entry);  
-  virtual void Run();
+
 
   CESettings* settings = nullptr;
   SimEvent* simevent = nullptr;
