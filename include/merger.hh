@@ -3,8 +3,6 @@
 #include <string>
 #include<stdio.h>
 
-#include "mpi.h"
-
 using namespace std;
 
 int merge(const char* path, int outputidx, int level, int* files, size_t size) {
@@ -18,7 +16,7 @@ int merge(const char* path, int outputidx, int level, int* files, size_t size) {
   system(cmd.str().c_str());
   return 0;
 }
-int mt_binarytree_merge(char* outputfile, const char* path, int nmergers, const int& rank, const int& mpisize) {
+int mt_binarytree_merge(const char* outputfile, const char* path, int nmergers, const int& rank, const int& mpisize) {
   
   if ( rank < nmergers) { 
     int nfiles = mpisize;
@@ -61,7 +59,7 @@ int mt_binarytree_merge(char* outputfile, const char* path, int nmergers, const 
 
 
     if (rank == 0) {
-      stringstream cmd; cmd.str(""); cmd << "mv " << path <<"/"<<level-1<<"_0.root ./" << outputfile;
+      stringstream cmd; cmd.str(""); cmd << "mv " << path <<"/"<<level-1<<"_0.root " << outputfile;
       system(cmd.str().c_str());
     }
   }

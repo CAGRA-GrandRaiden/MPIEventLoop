@@ -17,24 +17,27 @@ ROOTCFLAGS =   $(shell root-config --cflags)
 ROOTLIBS   =   $(shell root-config --libs)  
 ROOTGLIBS  =   $(shell root-config --glibs) 
 ROOTINC    = -I$(shell root-config --incdir)
+ROOTCINT   = rootcint
+
+DICTOBJS   = AnaloopDictionary.o
 
 #MPI FLAGS
 MPICC=-I/mnt/misc/sw/x86_64/Debian/7/openmpi/gnu/1.6.4-4.7.2/include
 
 # Flags to be passed to both C and C++ code
-CPPFLAGS = -Wall -Wextra -pedantic
+CPPFLAGS = -Wall -Wextra -pedantic -g
 
 # Flags to be passed to C code
 CFLAGS   = -O3
 
 # Flags to be passed to C++ code
-CXXFLAGS = -O3 $(ROOTCFLAGS) -I$(SIMEVENT)
+CXXFLAGS = -O3 $(ROOTCFLAGS) 
 
 # Flags to be passed to the linker, prior to listing of object files.
-LDFLAGS  = -lSimEvent -L$(SIMEVENT) -Wl,-rpath,$(SIMEVENT)
+LDFLAGS  = $(ROOTLIBS) 
 
 # Flags to be passed to the linker, after the listing of object files.
-LDLIBS   = $(ROOTLIBS)
+LDLIBS   = $(ROOTLIBS) -lSimEvent -L$(SIMEVENT) -Wl,-rpath,$(SIMEVENT)
 
 # A list of directories containing source files containing "int
 # main()".  Each file will be compiled into a separate executable.
@@ -47,7 +50,7 @@ SRC_DIRECTORIES = src
 
 # A list of directories containing include files.  Each directory will
 # be made available for #include directives for included files.
-INC_DIRECTORIES = include
+INC_DIRECTORIES = include $(SIMEVENT) 
 
 # A list of directories that contain libraries.  The list can also
 # contain patterns that expand to directories that contain libraries.

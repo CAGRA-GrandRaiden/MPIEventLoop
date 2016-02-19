@@ -287,7 +287,7 @@ library_o_files   = $(call o_file_name,$(call library_src_files,$(1),$(2)))
 library_os_files   = $(addsuffix s,$(call library_o_files,$(1),$(2)))
 
 
-all: default.inc executables libraries install_resources
+all:  default.inc executables libraries install_resources
 	@printf "%b" "$(DGREEN)Compilation successful$(NO_COLOR)\n"
 
 ifneq ($(TEST_COMMAND),)
@@ -338,6 +338,8 @@ $(LIBRARY): SHARED_LDLIBS +=
 $(LIBRARY):
 endef
 
+
+
 LibMakefile.inc:
 	@echo '$(subst $(newline),\n,$(value SAMPLE_MAKEFILE_INC_CONTENTS))' > Makefile.inc
 	@echo "Constructed Makefile.inc.  Place this into a library directory to customize behavior"
@@ -349,7 +351,7 @@ $(call SHARED_LIBRARY_NAME,%): build/$(BUILD)/$(call SHARED_LIBRARY_NAME,%) .bui
 $(call STATIC_LIBRARY_NAME,%): build/$(BUILD)/$(call STATIC_LIBRARY_NAME,%) .build-target
 	@$(call run_and_test,cp -f $< $@,Copying  )
 
-libraries:
+libraries: 
 STATIC_LIBRARY_OUTPUT :=
 SHARED_LIBRARY_OUTPUT :=
 
@@ -397,6 +399,11 @@ $(foreach lib,$(LIBRARY_FOLDERS),$(eval $(call library_commands,$(lib))))
 $(call EXE_NAME,%): build/$(BUILD)/$(call EXE_NAME,%) .build-target
 	@$(call run_and_test,cp -f $< $@,Copying  )
 
+%Dictionary.o: %.hh %LinkDef.h $(EXTRADEPS)
+	@echo "############### Compiling ROOT dictionary $(patsubst %.o,%.cc,$@)..."
+#	@$(ROOTCINT) -f $(patsubst %.o,%.cc,$@) -c -p $(DEFS) $(INCDIR) $(filter %.hh %.h,$^)
+#	@$(CXX) $(CFLAGS) $(CCFLAGS) $(INCDIR) -c $(patsubst %.o,%.cc,$@) -o $@
+
 executables:
 
 define exe_rules
@@ -417,11 +424,21 @@ define exe_rules
 	@$$(call run_and_test,$$(CXX) $$(ALL_LDFLAGS) $$^ $$(ALL_LDLIBS) -o $$@,Linking  )
   endif
 
+
   executables: $$(EXECUTABLES)
+
+
+
+
+
 endef
 
 $(foreach dir,$(EXE_DIRECTORIES),$(eval $(call exe_rules,$(dir))))
 
+dict: 
+	@echo "Compiling ROOT dictionary $(patsubst %.o,%.cc,$@)..."
+	@$(ROOTCINT) -f src/AnaloopDictionary.cc -c -p $(addprefix -I,$(INC_DIRECTORIES))  Analoop.h AnaloopLinkDef.h
+	@mv src/AnaloopDictionary.h include/AnaloopDictionary.h
 
 # Rules to build object files from C code
 define C_BUILD_RULES
@@ -461,9 +478,10 @@ endef
 $(foreach source,$(INSTALL_RESOURCES),$(eval $(call INSTALL_RULES,$(source))))
 
 
-
 # Cleanup
 clean:
 	@printf "%b" "$(DYELLOW)Cleaning$(NO_COLOR)\n"
 	@$(RM) -r $(CLEAN_TARGETS) .build-target
 	@$(RM) -rf *~
+	@$(RM) -rf include/*Dictionary*
+	@$(RM) -rf src/*Dictionary*
