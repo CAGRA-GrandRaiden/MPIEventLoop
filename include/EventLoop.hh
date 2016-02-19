@@ -15,5 +15,5 @@ private:
 
   CESettings* settings = nullptr;
   SimEvent* simevent = nullptr;
-  TH1F* h1;  
+
 };

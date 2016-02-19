@@ -7,7 +7,7 @@ EventLoop::EventLoop(vector<string> inputs)
 
 EventLoop::~EventLoop(){
   this->Run();
-  h1->Write();
+
   delete settings;
   delete simevent;
 }
@@ -34,8 +34,7 @@ void EventLoop::Setup() {
       ss << "settings";
       TString newName = ss.str().c_str();
       settings = (CESettings*)f.Get("CESettings");
-      //      settings->SetName(newName);
-
+      // settings->SetName(newName);
     }
 
     count++;
@@ -61,10 +60,11 @@ void EventLoop::Setup() {
   }
   settings->CAGRASettings.Reset();
 
-  h1 = new TH1F("CryDoppler00","CryDoppler00",5500,0,4.2);
 
 }
+
 void EventLoop::Process(const int& entry) {
+
   if (entry % 10000 == 0) cout << entry << endl;
   m_chain->GetEntry(entry);
 
@@ -73,9 +73,10 @@ void EventLoop::Process(const int& entry) {
   if (energy > 0) {
     energy = gRandom->Gaus(energy, 0.003*energy / 2.355); // <------------ RESOLUTION
     double dop = simevent->CAGRA.GetClover(0)->GetCrystal(0)->DopplerCorrect(energy,beta);
-      h1->Fill(dop);
+    Hist("CryDoppler00",dop,5500,0,4.2);
   }
 }
+
 
 void EventLoop::Run() {
   for (int i=m_lowerbound; i<m_upperbound; i++) {
