@@ -65,17 +65,18 @@ void MPILooper::Finalize(){
   prev->cd();
   m_output->Write();
   m_output->Close();
-  
+
   MPI_Barrier(MPI_COMM_WORLD);
   mt_binarytree_merge(m_outputpath.c_str(),m_path.c_str(),m_size/2,m_rank,m_size);
 }
 
 void MPILooper::Run() {
-  
+
   for (int i=m_lowerbound; i<m_upperbound; i++) {
     if (m_rank == 0) {    loadBar(i, m_threadcount, 1000, 50);    }
     Process(i);
-  }  
+  }
+  if (m_rank == 0) { cout << endl; }
   this->Finalize();
   MPI_Barrier(MPI_COMM_WORLD);
 }
@@ -84,7 +85,7 @@ MPILooper::~MPILooper() {
   if (m_rank==0){m_string.str(""); m_string << "rm -rf " << m_path; system(m_string.str().c_str());}
 
   delete m_selector;
-  MPI_Finalize();  
+  MPI_Finalize();
 }
 
 
