@@ -1,7 +1,29 @@
 define WELCOME_MESSAGE
-Creating defaults.inc. Please modify defaults.inc and
-recompile, or simply run make again to compile with
-the default settings.
+default.inc not found, generating now
+
+              MPI Histogrammer
+		    - Chris Sullivan
+
+An embarrisingly parallelized ROOT histogrammer
+for use on many-core systems via MPI. Also includes
+parallel histogram merging. Compiled with
+
+          Magic C/C++ Makefile
+                    - Eric Lunderberg
+
+This is a makefile intended for compiling any
+C/C++ project.  It will find all source files,
+compile them appropriately into executables and
+libraries, and track all dependencies.
+
+The makefile itself should not need to be
+modified.  A "default.inc" file has been generated,
+which contains many options for customizing the
+behavior of the makefile for your particular
+project.  The initial behavior assumes that most source
+files are located in src, include files are
+located in include, and source files containing
+"int main()" are in the main directory.
 endef #WELCOME_MESSAGE
 
 define DEFAULT_INC_CONTENTS

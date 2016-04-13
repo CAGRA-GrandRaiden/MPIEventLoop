@@ -1,0 +1,18 @@
+#!/bin/sh
+### name of job
+#PBS -N mpilooper
+### email on _a_bort, _b_egin, _e_nd
+#PBS -m abe
+### combine stdout/stderr
+#PBS -j oe
+### resource requests (time in HH:MM:SS)
+#PBS -l walltime=99:00:00
+### dont retry
+#PBS -r n
+### Output file
+#PBS -o ./output.dat
+### number of CPUS
+#PBS -l nodes=50
+#export GMON_OUT_PREFIX='gmon.out-'`/bin/uname -n`
+cd ${PBS_O_WORKDIR}
+time mpiexec ./bin/mpilooper

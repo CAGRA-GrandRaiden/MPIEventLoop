@@ -9,7 +9,7 @@ int merge(const char* path, int outputidx, int level, int* files, size_t size) {
 
   stringstream cmd; cmd.str(""); cmd << "hadd -f ";
   cmd << path << "/" << level+1 << "_" << outputidx << ".root ";
-  for (int i=0; i<size; i++) {
+  for (uint32_t i=0; i<size; i++) {
     cmd << path << "/" << level << "_" << files[i] << ".root ";
   }
   //cout <<"Rank: "<<outputidx << " - " << cmd.str() <<endl;
@@ -31,22 +31,27 @@ int mt_binarytree_merge(const char* outputfile, const char* path, int nmergers, 
       
 	if (remainder != 0 && rank == nmergers-1) {
 
-	  int files[nfilestomerge_perthread+remainder];
+          int *files = new int[nfilestomerge_perthread+remainder];
+          //int files[nfilestomerge_perthread+remainder];
 	  int idxfile = 0;
 	  for (int i=nfilestomerge_perthread*rank; i < nfilestomerge_perthread*(rank+1)+remainder; i++) {
 	    files[idxfile]=i;
 	    idxfile++;
 	  }
-	  merge(path,rank,level,files,nfilestomerge_perthread);	
+          merge(path,rank,level,files,nfilestomerge_perthread);
+
+          delete[] files;
 	} else {
-	
-	  int files[nfilestomerge_perthread];
+
+          int *files = new int[nfilestomerge_perthread];
+          //int files[nfilestomerge_perthread];
 	  int idxfile = 0;
 	  for (int i=nfilestomerge_perthread*rank; i < nfilestomerge_perthread*(rank+1); i++) {
 	    files[idxfile]=i;
 	    idxfile++;
 	  }
-	  merge(path,rank,level,files,nfilestomerge_perthread);	
+          merge(path,rank,level,files,nfilestomerge_perthread);
+          delete[] files;
 	}
 
 	nfiles = nmergers;

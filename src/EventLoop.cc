@@ -2,6 +2,38 @@
 #define DIAG
 #include "SimEvent.hh"
 
+
+// analysis code goes here (called every loop)
+void EventLoop::Process(const int& entry) {
+  m_chain->GetEntry(entry);
+
+  double beta = simevent->DecayProductsLab.Parent.GetBeta();    
+  double energy = simevent->CAGRA.GetClover(0)->GetCrystal(0)->GetEnergy();
+  if (energy > 0) {
+    energy = gRandom->Gaus(energy, 0.003*energy / 2.355); // <------------ RESOLUTION
+    double dop = simevent->CAGRA.GetClover(0)->GetCrystal(0)->DopplerCorrect(energy,beta);
+    Hist("CryDoppler00",dop,5500,0,4.2);
+   }
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 EventLoop::EventLoop(vector<string> inputs)
   : MPILooper(inputs) { Setup(); }
 
@@ -60,19 +92,3 @@ void EventLoop::Setup() {
 
 
 }
-
-void EventLoop::Process(const int& entry) {
-
-  if (entry % 10000 == 0) cout << entry << endl;
-  m_chain->GetEntry(entry);
-
-  double beta = simevent->DecayProductsLab.Parent.GetBeta();    
-  double energy = simevent->CAGRA.GetClover(0)->GetCrystal(0)->GetEnergy();
-  if (energy > 0) {
-    energy = gRandom->Gaus(energy, 0.003*energy / 2.355); // <------------ RESOLUTION
-    double dop = simevent->CAGRA.GetClover(0)->GetCrystal(0)->DopplerCorrect(energy,beta);
-    Hist("CryDoppler00",dop,5500,0,4.2);
-  }
-}
-
-

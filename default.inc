@@ -10,6 +10,7 @@ AR       = ar
 # The command to remove files
 RM       = rm -f
 
+# Path to analysis library 
 SIMEVENT=/projects/ceclub/sullivan/CESim/SimEvent
 
 # ROOT FLAGS

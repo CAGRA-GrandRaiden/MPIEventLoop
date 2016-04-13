@@ -10,7 +10,7 @@ public:
   virtual void Setup();
 
 private:
-  virtual void Process(const int& entry);  
+  inline virtual void Process(const int& entry);
 
 
   CESettings* settings = nullptr;

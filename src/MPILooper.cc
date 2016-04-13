@@ -20,7 +20,7 @@
 
 MPILooper::MPILooper(vector<string> inputlist)
   : m_selector(new TSelectorList()) {
-
+  
   MPI_Comm_size(MPI_COMM_WORLD, &m_size);
   MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
   m_chain = make_shared<TChain>("simtree");
@@ -44,15 +44,14 @@ MPILooper::MPILooper(vector<string> inputlist)
     m_lowerbound = remainder*(m_threadcount+1)+(m_rank-remainder)*m_threadcount;
   }
   m_upperbound = m_lowerbound+m_threadcount;
-  cout << "Rank: "<<m_rank<< " EventRange: ["<<m_lowerbound<< ","<<m_upperbound<<"]"<<endl;  
+  cout << "Rank: "<<m_rank<< " EventRange: ["<<m_lowerbound<< ","<<m_upperbound<<"]"<<endl;
 
   // temporary file directory
   m_tmpfile = "0_"+to_string(m_rank);
   m_string.str(""); m_string << m_path << m_tmpfile << ".root";
- 
-  MPI_Barrier(MPI_COMM_WORLD);
-  if (m_rank==0) {gSystem->MakeDirectory(m_path.c_str());}
 
+  if (m_rank==0) {gSystem->MakeDirectory(m_path.c_str());}
+  MPI_Barrier(MPI_COMM_WORLD);
   // open temporary output file
   m_output = make_shared<TFile>(m_string.str().c_str(),"recreate");
 }
@@ -72,8 +71,9 @@ void MPILooper::Finalize(){
 }
 
 void MPILooper::Run() {
-
+  
   for (int i=m_lowerbound; i<m_upperbound; i++) {
+    if (m_rank == 0) {    loadBar(i, m_threadcount, 1000, 50);    }
     Process(i);
   }  
   this->Finalize();

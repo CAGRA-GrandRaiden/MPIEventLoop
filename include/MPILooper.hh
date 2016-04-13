@@ -1,21 +1,14 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <string>
 #include <memory>
 #include <sstream>
 
-#include "TUnixSystem.h"
 #include "TFile.h"
 #include "TChain.h"
 #include "TChainElement.h"
-#include "TH1F.h"
-#include "TROOT.h"
-#include "TSystem.h"
-#include "TCanvas.h"
-#include "TObjArray.h"
-#include "TCollection.h"
-#include "TChainElement.h"
-#include <TSelectorList.h>
+#include "TSelectorList.h"
 #include "TRandom3.h"
 
 #include "mpi.h"
@@ -31,7 +24,7 @@ public:
   void SetOutputPath(char* outpath) {m_outputpath = outpath;}
   
 private:
-  inline virtual void Process(const int& entry) = 0;
+  virtual void Process(const int& entry) = 0;
   void Finalize();
   
 protected:
@@ -67,3 +60,6 @@ private:
   TSelectorList* m_selector;
   
 };
+
+#include "LoadingBar.hh"
+
