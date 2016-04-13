@@ -10,8 +10,11 @@ AR       = ar
 # The command to remove files
 RM       = rm -f
 
-# Path to analysis library 
-SIMEVENT=/projects/ceclub/sullivan/CESim/SimEvent
+# Name of user defined event library
+EVENTLIB =
+
+# Path to user defined event object library
+EVENTLIB_PATH =
 
 # ROOT FLAGS
 ROOTCFLAGS =   $(shell root-config --cflags)
@@ -38,7 +41,7 @@ CXXFLAGS = -O3 $(ROOTCFLAGS)
 LDFLAGS  = $(ROOTLIBS) 
 
 # Flags to be passed to the linker, after the listing of object files.
-LDLIBS   = $(ROOTLIBS) -lSimEvent -L$(SIMEVENT) -Wl,-rpath,$(SIMEVENT)
+LDLIBS   = $(ROOTLIBS) -l$(EVENTLIB) -L$(EVENTLIB_PATH) -Wl,-rpath,$(EVENTLIB_PATH)
 
 # A list of directories containing source files containing "int
 # main()".  Each file will be compiled into a separate executable.
@@ -51,7 +54,7 @@ SRC_DIRECTORIES = src
 
 # A list of directories containing include files.  Each directory will
 # be made available for #include directives for included files.
-INC_DIRECTORIES = include $(SIMEVENT) 
+INC_DIRECTORIES = include $(EVENTLIB_PATH) 
 
 # A list of directories that contain libraries.  The list can also
 # contain patterns that expand to directories that contain libraries.

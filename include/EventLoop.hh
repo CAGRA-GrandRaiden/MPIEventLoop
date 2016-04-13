@@ -1,8 +1,5 @@
 #include "MPILooper.hh"
 
-class CESettings;
-class SimEvent;
-
 class EventLoop : public MPILooper {
 public:
   EventLoop(vector<string>);
@@ -12,8 +9,6 @@ public:
 private:
   inline virtual void Process(const int& entry);
 
-
-  CESettings* settings = nullptr;
-  SimEvent* simevent = nullptr;
+  // user defined member variables
 
 };

@@ -20,7 +20,7 @@
 
 MPILooper::MPILooper(vector<string> inputlist)
   : m_selector(new TSelectorList()) {
-  
+
   MPI_Comm_size(MPI_COMM_WORLD, &m_size);
   MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
   m_chain = make_shared<TChain>("simtree");
@@ -150,9 +150,9 @@ void MPILooper::FillHistogram(TString name,Float_t Xvalue,Float_t Yvalue){
 
 
 void MPILooper::Hist(TString name,Float_t value,Int_t bins, Double_t xlow, Double_t xhigh){
-  
+
   TObject * object = m_selector->FindObject(name);
-  if ( object == NULL) {//The histogram is not there 
+  if ( object == NULL) {//The histogram is not there
     MakeHistogram(name,bins,xlow,xhigh);
   }
   FillHistogram(name,value);
@@ -161,11 +161,11 @@ void MPILooper::Hist(TString name,Float_t value,Int_t bins, Double_t xlow, Doubl
 void MPILooper::Hist(TString name,Float_t Xvalue,Float_t Yvalue,Int_t binsX, Double_t xlow, Double_t xhigh,Int_t binsY,Double_t yLow,Double_t yHigh){
 
   TObject * object = m_selector->FindObject(name);
-  if ( object == NULL) {//The histogram is not there 
+  if ( object == NULL) {//The histogram is not there
     MakeHistogram(name,binsX,xlow,xhigh,binsY,yLow,yHigh);
   }
   FillHistogram(name,Xvalue,Yvalue);
-  
+
 }
 
 
