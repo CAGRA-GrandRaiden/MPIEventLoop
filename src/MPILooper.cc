@@ -1,3 +1,6 @@
+/* Copyright (c) 2016- Chris Sullivan */
+/* See the file "LICENSE" for the full license governing this code. */
+
 #include "MPILooper.hh"
 #include "merger.hh"
 #include <TObject.h>

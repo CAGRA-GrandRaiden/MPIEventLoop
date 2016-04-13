@@ -1,3 +1,6 @@
+/* Copyright (c) 2016- Chris Sullivan */
+/* See the file "LICENSE" for the full license governing this code. */
+
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,7 +16,8 @@ void SignalHandler(int s);
 vector<string> GetInputFiles(const char* inputfile);
 
 int main(int argc, char** argv) {
-  // install the interupt handler, to prevent an MPI hay day
+
+  // install the interupt handler, to prevent an MPI hayday
   struct sigaction InteruptHandler;
   InteruptHandler.sa_handler = SignalHandler;
   sigemptyset(&InteruptHandler.sa_mask);

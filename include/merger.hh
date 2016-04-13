@@ -1,3 +1,6 @@
+/* Copyright (c) 2016- Chris Sullivan */
+/* See the file "LICENSE" for the full license governing this code. */
+
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -17,8 +20,8 @@ int merge(const char* path, int outputidx, int level, int* files, size_t size) {
   return 0;
 }
 int mt_binarytree_merge(const char* outputfile, const char* path, int nmergers, const int& rank, const int& mpisize) {
-  
-  if ( rank < nmergers) { 
+
+  if ( rank < nmergers) {
     int nfiles = mpisize;
     int nfilestomerge_perthread = 0;
     int level = 0;
@@ -28,12 +31,11 @@ int mt_binarytree_merge(const char* outputfile, const char* path, int nmergers, 
 
 	nfilestomerge_perthread = nfiles/nmergers;
 	int remainder = nfiles - nfilestomerge_perthread*nmergers;
-      
+
 	if (remainder != 0 && rank == nmergers-1) {
 
           int *files = new int[nfilestomerge_perthread+remainder];
-          //int files[nfilestomerge_perthread+remainder];
-	  int idxfile = 0;
+          int idxfile = 0;
 	  for (int i=nfilestomerge_perthread*rank; i < nfilestomerge_perthread*(rank+1)+remainder; i++) {
 	    files[idxfile]=i;
 	    idxfile++;
@@ -44,8 +46,7 @@ int mt_binarytree_merge(const char* outputfile, const char* path, int nmergers, 
 	} else {
 
           int *files = new int[nfilestomerge_perthread];
-          //int files[nfilestomerge_perthread];
-	  int idxfile = 0;
+          int idxfile = 0;
 	  for (int i=nfilestomerge_perthread*rank; i < nfilestomerge_perthread*(rank+1); i++) {
 	    files[idxfile]=i;
 	    idxfile++;
@@ -68,6 +69,6 @@ int mt_binarytree_merge(const char* outputfile, const char* path, int nmergers, 
       system(cmd.str().c_str());
     }
   }
-  
+
   return 0;
 }
