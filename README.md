@@ -8,7 +8,7 @@ PROOF server software. MPIHistogrammer is a simple library built with extreme-sc
 in mind and thus natively supports distributed parallel ROOT-based analysis in the standard HPC ecosystem.
 
 
-Author(s): __[Chris Sullivan]__ email: sullivan at nscl dot msu dot edu
+Author: __[Chris Sullivan]__ email: sullivan at nscl dot msu dot edu
 
 [Chris Sullivan]: https://people.nscl.msu.edu/~sullivan/
 
