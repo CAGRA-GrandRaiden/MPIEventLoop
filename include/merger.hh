@@ -20,7 +20,11 @@ int merge(const char* path, int outputidx, int level, int* files, size_t size) {
   return 0;
 }
 int mt_binarytree_merge(const char* outputfile, const char* path, int nmergers, const int& rank, const int& mpisize) {
-
+  if (mpisize <= 1) {
+    stringstream cmd; cmd.str(""); cmd << "mv " << path <<"/0_0.root " << outputfile;
+    system(cmd.str().c_str());
+    return 0;
+  }
   if ( rank < nmergers) {
     int nfiles = mpisize;
     int nfilestomerge_perthread = 0;
@@ -29,35 +33,35 @@ int mt_binarytree_merge(const char* outputfile, const char* path, int nmergers, 
 
       if ( rank < nmergers) {
 
-	nfilestomerge_perthread = nfiles/nmergers;
-	int remainder = nfiles - nfilestomerge_perthread*nmergers;
+        nfilestomerge_perthread = nfiles/nmergers;
+        int remainder = nfiles - nfilestomerge_perthread*nmergers;
 
-	if (remainder != 0 && rank == nmergers-1) {
+        if (remainder != 0 && rank == nmergers-1) {
 
           int *files = new int[nfilestomerge_perthread+remainder];
           int idxfile = 0;
-	  for (int i=nfilestomerge_perthread*rank; i < nfilestomerge_perthread*(rank+1)+remainder; i++) {
-	    files[idxfile]=i;
-	    idxfile++;
-	  }
+          for (int i=nfilestomerge_perthread*rank; i < nfilestomerge_perthread*(rank+1)+remainder; i++) {
+            files[idxfile]=i;
+            idxfile++;
+          }
           merge(path,rank,level,files,nfilestomerge_perthread);
 
           delete[] files;
-	} else {
+        } else {
 
           int *files = new int[nfilestomerge_perthread];
           int idxfile = 0;
-	  for (int i=nfilestomerge_perthread*rank; i < nfilestomerge_perthread*(rank+1); i++) {
-	    files[idxfile]=i;
-	    idxfile++;
-	  }
+          for (int i=nfilestomerge_perthread*rank; i < nfilestomerge_perthread*(rank+1); i++) {
+            files[idxfile]=i;
+            idxfile++;
+          }
           merge(path,rank,level,files,nfilestomerge_perthread);
           delete[] files;
-	}
+        }
 
-	nfiles = nmergers;
-	nmergers /= 2;
-	level++;
+        nfiles = nmergers;
+        nmergers /= 2;
+        level++;
 
       } else { break; }
 
