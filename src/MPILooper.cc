@@ -3,6 +3,9 @@
 
 #include "MPILooper.hh"
 #include "merger.hh"
+
+#include <algorithm>
+
 #include <TObject.h>
 #include <TROOT.h>
 #include <TObject.h>
@@ -48,6 +51,7 @@ MPILooper::MPILooper(const char* treename, vector<string> inputlist)
   }
   m_upperbound = m_lowerbound+m_threadcount;
   cout << "Rank: "<<m_rank<< " EventRange: ["<<m_lowerbound<< ","<<m_upperbound<<"]"<<endl;
+  resolution = max(1000,m_threadcount);
 
   // temporary file directory
   m_tmpfile = "0_"+to_string(m_rank);
@@ -76,7 +80,7 @@ void MPILooper::Finalize(){
 void MPILooper::Run() {
 
   for (int i=m_lowerbound; i<m_upperbound; i++) {
-    if (m_rank == 0) {    loadBar(i, m_threadcount, 1000, 50);    }
+    if (m_rank == 0) {    loadBar(i, m_threadcount, resolution, 50);    }
     Process(i);
   }
   if (m_rank == 0) { cout << endl; }

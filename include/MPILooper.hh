@@ -62,6 +62,9 @@ private:
   string m_outputpath = "./output.root";
   TSelectorList* m_selector;
 
+  // LoadingBar
+  int resolution;
+
 };
 
 #include "LoadingBar.hh"
