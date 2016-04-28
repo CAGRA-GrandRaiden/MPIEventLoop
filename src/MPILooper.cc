@@ -51,7 +51,7 @@ MPILooper::MPILooper(const char* treename, vector<string> inputlist)
   }
   m_upperbound = m_lowerbound+m_threadcount;
   cout << "Rank: "<<m_rank<< " EventRange: ["<<m_lowerbound<< ","<<m_upperbound<<"]"<<endl;
-  resolution = max(1000,m_threadcount);
+  resolution = (m_threadcount > 1000) ? 1000 : m_threadcount;
 
   // temporary file directory
   m_tmpfile = "0_"+to_string(m_rank);
