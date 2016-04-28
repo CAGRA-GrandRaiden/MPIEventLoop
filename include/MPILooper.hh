@@ -20,7 +20,7 @@ using namespace std;
 
 class MPILooper {
 public:
-  MPILooper(vector<string>);
+  MPILooper(const char* treename, vector<string>);
   virtual ~MPILooper();
 
   void Run();

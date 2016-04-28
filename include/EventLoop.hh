@@ -2,7 +2,7 @@
 
 class EventLoop : public MPILooper {
 public:
-  EventLoop(vector<string>);
+  EventLoop(const char* treename, vector<string>);
   ~EventLoop();
   virtual void Setup();
 

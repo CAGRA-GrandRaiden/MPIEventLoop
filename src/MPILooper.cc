@@ -21,12 +21,12 @@
 #include <TSelectorList.h>
 
 
-MPILooper::MPILooper(vector<string> inputlist)
+MPILooper::MPILooper(const char* treename, vector<string> inputlist)
   : m_selector(new TSelectorList()) {
 
   MPI_Comm_size(MPI_COMM_WORLD, &m_size);
   MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
-  m_chain = make_shared<TChain>("simtree");
+  m_chain = make_shared<TChain>(treename);
 
   // add all input files to the TChain
   for(auto fn : inputlist) {

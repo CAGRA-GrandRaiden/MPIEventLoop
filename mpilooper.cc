@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 
   MPI_Init(&argc, &argv);
 
-  EventLoop analyzer(GetInputFiles("./inputfiles.dat"));
+  EventLoop analyzer("simtree",GetInputFiles("./inputfiles.dat"));
   if (argc > 1) {   analyzer.SetOutputPath(argv[1]);    }
   analyzer.Run();
 

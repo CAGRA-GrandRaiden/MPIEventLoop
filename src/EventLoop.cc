@@ -7,8 +7,8 @@ void EventLoop::Process(const int& entry) {
 
 }
 
-EventLoop::EventLoop(vector<string> inputs)
-  : MPILooper(inputs) { Setup(); }
+EventLoop::EventLoop(const char* treename, vector<string> inputs)
+  : MPILooper(treename, inputs) { Setup(); }
 
 EventLoop::~EventLoop(){
 
