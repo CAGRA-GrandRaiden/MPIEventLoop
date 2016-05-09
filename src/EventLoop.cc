@@ -1,14 +1,48 @@
 #include "EventLoop.hh"
 
 void EventLoop::Process(const int& entry) {
-  m_chain->GetEntry(entry);
+  m_reader->SetEntry(entry);
 
-  // user defined analysis
+  // user defined analysis //////////////////////////////////////
+
+  ATEvent* event = (ATEvent*) eventArray->At(0);
+  Int_t nHits = event->GetNumHits();
+  std::vector<ATHit>* hitArray = event->GetHitArray();
+  event->GetHitArrayObj();
+  //std::cout<<event->GetEventID()<<std::endl;
+  hitArray->size();
+
+  std::vector<ATHit*>* hitbuff = new std::vector<ATHit*>;
+
+
+  for(Int_t iHit=0; iHit<nHits; iHit++){
+    ATHit hit = event->GetHit(iHit);
+    TVector3 hitPos = hit.GetPosition();
+    hitbuff->push_back(&hit);
+  }
+
+  ATHoughSpaceCircle* fHoughSpaceCircle  = dynamic_cast<ATHoughSpaceCircle*> (houghArray->At(0));
+  parameter = fHoughSpaceCircle->GetInitialParameters();
+  std::pair<Double_t,Double_t>  fHoughLinePar =  fHoughSpaceCircle->GetHoughPar();
+  Double_t HoughAngleDeg = fHoughLinePar.first*180.0/TMath::Pi();
+  if (   HoughAngleDeg<90.0 && HoughAngleDeg>45.0 ) {
+
+    min->MinimizeOpt(parameter,event);
+  }
 
 }
 
+
+
+
+
+
+
+
+
 EventLoop::EventLoop(const char* treename, vector<string> inputs)
-  : MPILooper(treename, inputs) { Setup(); }
+  : MPILooper(treename, inputs), eventArray(*m_reader, "ATEventH"), houghArray(*m_reader, "ATHough")
+{ Setup(); }
 
 EventLoop::~EventLoop(){
 
@@ -36,7 +70,6 @@ void EventLoop::Setup() {
     }
 
     // user defined settings extraction from rootfiles
-
   }
 
 
@@ -45,7 +78,11 @@ void EventLoop::Setup() {
     exit(0);
   }
 
-  // associate userdefined event object with TChain, e.g.
-  /** m_chain->SetBranchAddress("event",&event); **/
+  // user defined initialization and setup
+
+  run = new FairRunAna(); //Forcing a dummy run
+  min = new MCMinimization();
+  parameter = new Double_t[8];
+  min->ResetParameters();
 
 }

@@ -13,6 +13,7 @@
 #include "TChainElement.h"
 #include "TSelectorList.h"
 #include "TRandom3.h"
+#include "TTreeReader.h"
 
 #include "mpi.h"
 
@@ -47,6 +48,7 @@ protected:
   int m_upperbound;
   shared_ptr<TFile> m_output;
   shared_ptr<TChain> m_chain;
+  TTreeReader* m_reader;
 
 private:
   // MPI variables

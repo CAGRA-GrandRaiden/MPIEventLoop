@@ -36,6 +36,8 @@ MPILooper::MPILooper(const char* treename, vector<string> inputlist)
     m_chain->Add(fn.c_str());
   }
 
+  m_reader = new TTreeReader(m_chain.get());
+
   // divide the events up into equal chunks
   m_nentries = m_chain->GetEntries();
   m_threadcount = m_nentries/m_size;
@@ -80,7 +82,7 @@ void MPILooper::Finalize(){
 void MPILooper::Run() {
 
   for (int i=m_lowerbound; i<m_upperbound; i++) {
-    if (m_rank == 0) {    loadBar(i, m_threadcount, resolution, 50);    }
+    if (m_rank == 0) {    /*loadBar(i, m_threadcount, resolution, 50);*/    }
     Process(i);
   }
   if (m_rank == 0) { cout << endl; }
