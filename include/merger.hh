@@ -4,7 +4,8 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include<stdio.h>
+#include <stdio.h>
+
 
 using namespace std;
 
@@ -30,12 +31,14 @@ int mt_binarytree_merge(const char* outputfile, const char* path, int nmergers, 
     int nfilestomerge_perthread = 0;
     int level = 0;
     do {
-
+      // only the first N ranks will participate in the merge processes
+      // where N = nmergers (the number of merging processes).
       if ( rank < nmergers) {
 
         nfilestomerge_perthread = nfiles/nmergers;
         int remainder = nfiles - nfilestomerge_perthread*nmergers;
 
+        // if there is a remainder, add it to the last threads tasks
         if (remainder != 0 && rank == nmergers-1) {
 
           int *files = new int[nfilestomerge_perthread+remainder];
@@ -65,6 +68,10 @@ int mt_binarytree_merge(const char* outputfile, const char* path, int nmergers, 
 
       } else { break; }
 
+      // Wait until all merging threads are complete with the current level
+      // TODO: performance could be improved by using a master-worker model
+      // for the tree merge
+      MPI_Barrier(MPI_COMM_WORLD);
     } while (nmergers > 0);
 
 
