@@ -26,7 +26,25 @@ int mt_binarytree_merge(const char* outputfile, const char* path, int nmergers, 
     system(cmd.str().c_str());
     return 0;
   }
+
+  MPI_Group orig_group, new_group;
+  MPI_Comm comm_mergers;
+
+  /* Extract the original group handle */
+  MPI_Comm_group(MPI_COMM_WORLD, &orig_group);
+
   if ( rank < nmergers) {
+
+    // Create a new communicator with only a subset of ranks
+    int* ranks = new int[nmergers];
+    for (int i = 0; i< nmergers; i++) { ranks[i] = i; }
+
+    // Form the MPI group of ranks
+    MPI_Group_incl(orig_group, nmergers, ranks, &new_group);
+
+    // Create the new communicator
+    MPI_Comm_create(MPI_COMM_WORLD, new_group, &comm_mergers);
+
     int nfiles = mpisize;
     int nfilestomerge_perthread = 0;
     int level = 0;
@@ -71,7 +89,7 @@ int mt_binarytree_merge(const char* outputfile, const char* path, int nmergers, 
       // Wait until all merging threads are complete with the current level
       // TODO: performance could be improved by using a master-worker model
       // for the tree merge
-      MPI_Barrier(MPI_COMM_WORLD);
+      MPI_Barrier(comm_mergers);
     } while (nmergers > 0);
 
 
