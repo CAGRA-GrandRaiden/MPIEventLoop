@@ -8,7 +8,7 @@
 #include <fstream>
 #include <string>
 
-#include "EventLoop.hh"
+#include "MPILooper.hh"
 
 using namespace std;
 
@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 
   MPI_Init(&argc, &argv);
 
-  EventLoop analyzer(GetInputFiles("./inputfiles.dat"));
+  MPILooper analyzer(GetInputFiles("./inputfiles.dat"));
   if (argc > 1) {   analyzer.SetOutputPath(argv[1]);    }
   analyzer.Run();
 

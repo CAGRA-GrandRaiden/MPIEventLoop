@@ -10,35 +10,44 @@ AR       = ar
 # The command to remove files
 RM       = rm -f
 
-# Path to analysis library 
-SIMEVENT=/projects/ceclub/sullivan/CESim/SimEvent
+GRUTCONFIG= ../bin/grutinizer-config
+# Path to analysis library
+GRUTLIBS = $(shell $(GRUTCONFIG) --all-libs)
+GRUTLIBS += -lSourceData -lTArgonne -lTGrandRaiden -lTNSCLScalers -lRCNPEvent -lGRAnalyzer -lSpectrum -lPyROOT
+GRUTINC= ../include
+GRUTLIBDIR=../libraries
 
 # ROOT FLAGS
 ROOTCFLAGS =   $(shell root-config --cflags)
-ROOTLIBS   =   $(shell root-config --libs)  
-ROOTGLIBS  =   $(shell root-config --glibs) 
+ROOTLIBS   =   $(shell root-config --glibs)
+#ROOTGLIBS  =   $(shell root-config --glibs)
 ROOTINC    = -I$(shell root-config --incdir)
-ROOTCINT   = rootcint
-
-DICTOBJS   = AnaloopDictionary.o
 
 #MPI FLAGS
-MPICC=-I/mnt/misc/sw/x86_64/Debian/7/openmpi/gnu/1.6.4-4.7.2/include
+MPICC=-I/home/cagragr/.local/include
+
+RCNPANAPATH = ../GRAnalyzer/analyzer
+RCNPANALYZER = $(realpath $(RCNPANAPATH)/../lib)
+RCNPFLAGS = -DRCNP
+RCNPLINKFLAGS = -L$(RCNPANALYZER) -Wl,-rpath,$(RCNPANALYZER) -lRCNPEvent -lGRAnalyzer -L$(realpath $(RCNPANAPATH)/lib) -lpacklib -lm -lgfortran -lnsl
+RCNPINCLUDES = $(RCNPANAPATH)/include $(RCNPANAPATH)/libRCNPEvent/include $(RCNPANAPATH)/libGRAnalyzer/include
+
 
 # Flags to be passed to both C and C++ code
-CPPFLAGS = -Wall -Wextra -pedantic -g
+CPPFLAGS = -Wall -Wextra -pedantic -g -O3 $(RCNPFLAGS)
 
 # Flags to be passed to C code
-CFLAGS   = -O3
+CFLAGS   =
 
 # Flags to be passed to C++ code
-CXXFLAGS = -O3 $(ROOTCFLAGS) 
+CXXFLAGS =  $(ROOTCFLAGS)
+
 
 # Flags to be passed to the linker, prior to listing of object files.
-LDFLAGS  = $(ROOTLIBS) 
+LDFLAGS  = $(ROOTLIBS) $(GRUTLIBS) $(RCNPLINKFLAGS)
 
 # Flags to be passed to the linker, after the listing of object files.
-LDLIBS   = $(ROOTLIBS) -lSimEvent -L$(SIMEVENT) -Wl,-rpath,$(SIMEVENT)
+LDLIBS   = $(ROOTLIBS) -L$(GRUTLIBDIR) -Wl,-rpath,$(GRUTLIBDIR) $(RCNPLINKFLAGS)
 
 # A list of directories containing source files containing "int
 # main()".  Each file will be compiled into a separate executable.
@@ -51,7 +60,7 @@ SRC_DIRECTORIES = src
 
 # A list of directories containing include files.  Each directory will
 # be made available for #include directives for included files.
-INC_DIRECTORIES = include $(SIMEVENT) 
+INC_DIRECTORIES = include $(GRUTINC) $(RCNPINCLUDES)
 
 # A list of directories that contain libraries.  The list can also
 # contain patterns that expand to directories that contain libraries.

@@ -421,11 +421,6 @@ $(foreach lib,$(LIBRARY_FOLDERS),$(eval $(call library_commands,$(lib))))
 $(call EXE_NAME,%): build/$(BUILD)/$(call EXE_NAME,%) .build-target
 	@$(call run_and_test,cp -f $< $@,Copying  )
 
-%Dictionary.o: %.hh %LinkDef.h $(EXTRADEPS)
-	@echo "############### Compiling ROOT dictionary $(patsubst %.o,%.cc,$@)..."
-#	@$(ROOTCINT) -f $(patsubst %.o,%.cc,$@) -c -p $(DEFS) $(INCDIR) $(filter %.hh %.h,$^)
-#	@$(CXX) $(CFLAGS) $(CCFLAGS) $(INCDIR) -c $(patsubst %.o,%.cc,$@) -o $@
-
 executables:
 
 define exe_rules
@@ -450,17 +445,9 @@ define exe_rules
   executables: $$(EXECUTABLES)
 
 
-
-
-
 endef
 
 $(foreach dir,$(EXE_DIRECTORIES),$(eval $(call exe_rules,$(dir))))
-
-dict: 
-	@echo "Compiling ROOT dictionary $(patsubst %.o,%.cc,$@)..."
-	@$(ROOTCINT) -f src/AnaloopDictionary.cc -c -p $(addprefix -I,$(INC_DIRECTORIES))  Analoop.h AnaloopLinkDef.h
-	@mv src/AnaloopDictionary.h include/AnaloopDictionary.h
 
 # Rules to build object files from C code
 define C_BUILD_RULES
@@ -505,5 +492,3 @@ clean:
 	@printf "%b" "$(DYELLOW)Cleaning$(NO_COLOR)\n"
 	@$(RM) -r $(CLEAN_TARGETS) .build-target
 	@$(RM) -rf *~
-	@$(RM) -rf include/*Dictionary*
-	@$(RM) -rf src/*Dictionary*

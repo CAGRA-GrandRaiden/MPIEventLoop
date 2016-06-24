@@ -7,12 +7,22 @@
 #include <string>
 #include <memory>
 #include <sstream>
+#include <map>
 
 #include "TFile.h"
 #include "TChain.h"
 #include "TChainElement.h"
-#include "TSelectorList.h"
+//#include "TSelectorList.h"
 #include "TRandom3.h"
+
+#include "TCompiledHistograms.h"
+#include "TGRUTint.h"
+#include "TGRUTOptions.h"
+#include "TPreserveGDirectory.h"
+#include "GValue.h"
+#include "TChannel.h"
+#include "TDetector.h"
+#include "TUnpackedEvent.h"
 
 #include "mpi.h"
 
@@ -27,19 +37,11 @@ public:
   void SetOutputPath(char* outpath) {m_outputpath = outpath;}
 
 private:
-  virtual void Process(const int& entry) = 0;
+  //virtual void Process(const int& entry);
   void Finalize();
 
 protected:
-  virtual void Setup() = 0;
-  void MakeHistogram(TString name,Int_t bins,Double_t xlow,Double_t xhigh);
-  void FillHistogram(TString name,Float_t value);
-  void MakeHistogram(TString name,Int_t binsX,Double_t xlow,Double_t xhigh,Int_t binsY,Double_t yLow,Double_t yHigh);
-  void FillHistogram(TString name,Float_t Xvalue,Float_t Yvalue);
-  void Hist(TString name,Float_t value,Int_t bins, Double_t xlow, Double_t xhigh);
-  void Hist(TString name,Float_t Xvalue,Float_t Yvalue,Int_t binsX, Double_t xlow, Double_t xhigh,Int_t binsY,Double_t yLow,Double_t yHigh);
-  void Hist(Int_t HistNumber,Float_t value,Int_t bins, Double_t xlow, Double_t xhigh);
-  void Hist(Int_t HistNumber,Float_t Xvalue,Float_t Yvalue,Int_t binsX, Double_t xlow, Double_t xhigh,Int_t binsY,Double_t yLow,Double_t yHigh);
+  virtual void Setup();
 
 
 protected:
@@ -60,7 +62,10 @@ private:
   string m_tmpfile;
   stringstream m_string;
   string m_outputpath = "./output.root";
-  TSelectorList* m_selector;
+  //TSelectorList* m_selector;
+
+  TCompiledHistograms compiled_histograms;
+  map<TClass*, TDetector**> det_map;
 
 };
 

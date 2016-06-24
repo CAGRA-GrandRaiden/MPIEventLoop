@@ -10,7 +10,7 @@
 #include <TFile.h>
 #include <TChain.h>
 #include <TTree.h>
-#include <TSelector.h>
+//#include <TSelector.h>
 #include <TH2.h>
 #include <TH1.h>
 #include <TMath.h>
@@ -18,15 +18,16 @@
 #include <TEnv.h>
 #include <TCanvas.h>
 #include <TCutG.h>
-#include <TSelectorList.h>
+//#include <TSelectorList.h>
 
 
 MPILooper::MPILooper(vector<string> inputlist)
-  : m_selector(new TSelectorList()) {
+  : compiled_histograms("/home/cagragr/ana/sullivan/libraries/libMakeANLHistos.so")
+{
 
   MPI_Comm_size(MPI_COMM_WORLD, &m_size);
   MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
-  m_chain = make_shared<TChain>("simtree");
+  m_chain = make_shared<TChain>("EventTree");
 
   // add all input files to the TChain
   for(auto fn : inputlist) {
@@ -56,18 +57,45 @@ MPILooper::MPILooper(vector<string> inputlist)
   if (m_rank==0) {gSystem->MakeDirectory(m_path.c_str());}
   MPI_Barrier(MPI_COMM_WORLD);
   // open temporary output file
-  m_output = make_shared<TFile>(m_string.str().c_str(),"recreate");
+  {
+    TPreserveGDirectory preserve;
+    m_output = make_shared<TFile>(m_string.str().c_str(),"recreate");
+    compiled_histograms.SetDefaultDirectory(m_output.get());
+  }
 }
+void MPILooper::Setup() {
+  TObjArray *array = m_chain->GetListOfBranches();
+  for(int x=0;x<array->GetSize();x++) {
+    TBranch *b = (TBranch*)array->At(x);
+    if(b) {
+      TClass *c = TClass::GetClass(b->GetName());
+      if(c) {
+        printf("Found  %s!\n",b->GetName());
+        TDetector** det = new TDetector*;
+        *det = NULL;
+        det_map[c] = det;
+        m_chain->SetBranchAddress(b->GetName(),det_map[c]);
+      }
+    }
+  }
 
+}
 void MPILooper::Finalize(){
-  // ROOT shinanigans to properly write
-  // the TSelectorList to file
-  TDirectory* prev = gDirectory;
-  m_output->cd();
-  m_selector->Write();
-  prev->cd();
+  TPreserveGDirectory preserve;
+  if(m_output){
+    m_output->cd();
+  }
+  compiled_histograms.Write();
+  if(GValue::Size()) {
+    GValue::Get()->Write();
+  }
+  if(TChannel::Size()) {
+    TChannel::Get()->Write();
+  }
+  compiled_histograms.SetDefaultDirectory(NULL);
   m_output->Write();
   m_output->Close();
+  m_output = 0;
 
   MPI_Barrier(MPI_COMM_WORLD);
   mt_binarytree_merge(m_outputpath.c_str(),m_path.c_str(),m_size/2,m_rank,m_size);
@@ -77,7 +105,26 @@ void MPILooper::Run() {
 
   for (int i=m_lowerbound; i<m_upperbound; i++) {
     if (m_rank == 0) {    loadBar(i, m_threadcount, 1000, 50);    }
-    Process(i);
+    //Process(i);
+    m_chain->GetEntry(i);
+    for(auto& elem : det_map){
+      *elem.second = (TDetector*)elem.first->New();
+    }
+    m_chain->GetEntry(i);
+
+    TUnpackedEvent* event = new TUnpackedEvent;
+    for(auto& elem : det_map){
+      TDetector* det = *elem.second;
+      if(!det->TestBit(TDetector::kUnbuilt)){
+        event->AddDetector(det);
+      } else {
+        delete det;
+      }
+    }
+    compiled_histograms.Fill(*event);
+    delete event;
+    if (i>10000) break;
+
   }
   if (m_rank == 0) { cout << endl; }
   this->Finalize();
@@ -87,103 +134,6 @@ void MPILooper::Run() {
 MPILooper::~MPILooper() {
   if (m_rank==0){m_string.str(""); m_string << "rm -rf " << m_path; system(m_string.str().c_str());}
 
-  delete m_selector;
+  //delete m_selector;
   MPI_Finalize();
 }
-
-
-
-/**Make a 1D histogram with a Name
-
- */
-void MPILooper::MakeHistogram(TString name,Int_t bins,Double_t xlow,Double_t xhigh){
-  TH1F* h=new TH1F(name,name,bins,xlow,xhigh);
-  m_selector->AddLast(h);
-  gDirectory->Add(h);
-}
-
-/**Fill a 1D histogram with a name
-
- */
-void MPILooper::FillHistogram(TString name,Float_t value){
-
-  TObject * object = m_selector->FindObject(name);
-
-  if (object == NULL){
-    Error("FillHistogram",name+" not found");
-    return;
-  }
-  TString className=object->ClassName();
-  if (className !="TH1F"){
-    Error("FillHistogram",name+" not a histogram");
-  }
-
-  ((TH1F*)object)->Fill(value);
-
-}
-
-
-/**Makea 2D histogram with a Name
- */
-void MPILooper::MakeHistogram(TString name,Int_t binsX,Double_t xlow,Double_t xhigh,Int_t binsY,Double_t yLow,Double_t yHigh){
-  TH2F* h=new TH2F(name,name,binsX,xlow,xhigh,binsY,yLow,yHigh);
-  m_selector->AddLast(h);
-  gDirectory->Add(h);
-}
-
-
-/**Fill a 2D histogram with a Name
- */
-void MPILooper::FillHistogram(TString name,Float_t Xvalue,Float_t Yvalue){
-
-  TObject * object = m_selector->FindObject(name);
-  
-  if (object == NULL){
-    Error("FillHistogram",name+" not found");
-    return;
-  }
-  TString className=object->ClassName();
-  if (className !="TH2F"){
-    Error("FillHistogram",name+" not a histogram");
-  }
-
-  ((TH2F*)object)->Fill(Xvalue,Yvalue);
-
-}
-
-
-void MPILooper::Hist(TString name,Float_t value,Int_t bins, Double_t xlow, Double_t xhigh){
-
-  TObject * object = m_selector->FindObject(name);
-  if ( object == NULL) {//The histogram is not there
-    MakeHistogram(name,bins,xlow,xhigh);
-  }
-  FillHistogram(name,value);
-}
-
-void MPILooper::Hist(TString name,Float_t Xvalue,Float_t Yvalue,Int_t binsX, Double_t xlow, Double_t xhigh,Int_t binsY,Double_t yLow,Double_t yHigh){
-
-  TObject * object = m_selector->FindObject(name);
-  if ( object == NULL) {//The histogram is not there
-    MakeHistogram(name,binsX,xlow,xhigh,binsY,yLow,yHigh);
-  }
-  FillHistogram(name,Xvalue,Yvalue);
-
-}
-
-
-void MPILooper::Hist(Int_t HistNumber,Float_t value,Int_t bins, Double_t xlow, Double_t xhigh){
-  stringstream s;
-  s<<"h"<<HistNumber;
-  Hist(s.str().c_str(),value,bins,xlow,xhigh);
-
-}
-void MPILooper::Hist(Int_t HistNumber,Float_t Xvalue,Float_t Yvalue,Int_t binsX, Double_t xlow, Double_t xhigh,Int_t binsY,Double_t ylow,Double_t yhigh){
-  stringstream s;
-  s<<"h"<<HistNumber;
-  Hist(s.str().c_str(),Xvalue,Yvalue,binsX,xlow,xhigh,binsY,ylow,yhigh);
-
-}
-
-
-
