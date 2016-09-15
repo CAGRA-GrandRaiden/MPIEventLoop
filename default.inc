@@ -13,9 +13,9 @@ RM       = rm -f
 GRUTCONFIG= ../bin/grutinizer-config
 # Path to analysis library
 GRUTLIBS = $(shell $(GRUTCONFIG) --all-libs)
-GRUTLIBS += -lSourceData -lTArgonne -lTGrandRaiden -lTNSCLScalers -lRCNPEvent -lGRAnalyzer -lSpectrum -lPyROOT
+GRUTLIBS += -lSourceData -lTCagra -lTGrandRaiden -lTNSCLScalers -lRCNPEvent -lGRAnalyzer -lSpectrum -lPyROOT -lTMVA
 GRUTINC= ../include
-GRUTLIBDIR=../libraries
+GRUTLIBDIR=../lib
 
 # ROOT FLAGS
 ROOTCFLAGS =   $(shell root-config --cflags)
@@ -23,8 +23,6 @@ ROOTLIBS   =   $(shell root-config --glibs)
 #ROOTGLIBS  =   $(shell root-config --glibs)
 ROOTINC    = -I$(shell root-config --incdir)
 
-#MPI FLAGS
-MPICC=-I/home/cagragr/.local/include
 
 RCNPANAPATH = ../GRAnalyzer/analyzer
 RCNPANALYZER = $(realpath $(RCNPANAPATH)/../lib)

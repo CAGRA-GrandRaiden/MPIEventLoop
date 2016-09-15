@@ -19,10 +19,11 @@
 #include <TCanvas.h>
 #include <TCutG.h>
 //#include <TSelectorList.h>
+#include "TGRUTOptions.h"
 
 
 MPILooper::MPILooper(vector<string> inputlist)
-  : compiled_histograms("/home/cagragr/ana/sullivan/libraries/libMakeANLHistos.so")
+  : compiled_histograms(TGRUTOptions::Get()->CompiledHistogramFile())
 {
 
   MPI_Comm_size(MPI_COMM_WORLD, &m_size);
@@ -78,7 +79,6 @@ void MPILooper::Setup() {
       }
     }
   }
-
 }
 void MPILooper::Finalize(){
   TPreserveGDirectory preserve;
@@ -98,15 +98,22 @@ void MPILooper::Finalize(){
   m_output = 0;
 
   MPI_Barrier(MPI_COMM_WORLD);
-  mt_binarytree_merge(m_outputpath.c_str(),m_path.c_str(),m_size/2,m_rank,m_size);
+
+  // mergeing step
+  if (m_rank == 0) {
+    std::string grutpath = getenv("GRUTSYS");
+    stringstream cmd; cmd.str(""); cmd << grutpath+"/util/gadd_fast.py -f " << m_outputpath.c_str() << " " << m_path.c_str() << "*";
+    std::cout << cmd.str() << std::endl;
+    system(cmd.str().c_str());
+  }
+
 }
 
 void MPILooper::Run() {
-
+  Setup();
   for (int i=m_lowerbound; i<m_upperbound; i++) {
     if (m_rank == 0) {    loadBar(i, m_threadcount, 1000, 50);    }
     //Process(i);
-    m_chain->GetEntry(i);
     for(auto& elem : det_map){
       *elem.second = (TDetector*)elem.first->New();
     }
@@ -123,7 +130,9 @@ void MPILooper::Run() {
     }
     compiled_histograms.Fill(*event);
     delete event;
-    if (i>10000) break;
+
+    // DEBUG FOR TESTING
+    //if (i>10000) break;
 
   }
   if (m_rank == 0) { cout << endl; }
@@ -134,6 +143,5 @@ void MPILooper::Run() {
 MPILooper::~MPILooper() {
   if (m_rank==0){m_string.str(""); m_string << "rm -rf " << m_path; system(m_string.str().c_str());}
 
-  //delete m_selector;
   MPI_Finalize();
 }
