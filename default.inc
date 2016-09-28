@@ -13,7 +13,7 @@ RM       = rm -f
 GRUTCONFIG= ../bin/grutinizer-config
 # Path to analysis library
 GRUTLIBS = $(shell $(GRUTCONFIG) --all-libs)
-GRUTLIBS += -lSourceData -lTCagra -lTGrandRaiden -lTNSCLScalers -lRCNPEvent -lGRAnalyzer -lSpectrum -lPyROOT -lTMVA
+GRUTLIBS += -lSourceData -lTNSCLScalers -lSpectrum -lPyROOT -lTMVA -lTArgonne -lTGrandRaiden
 GRUTINC= ../include
 GRUTLIBDIR=../lib
 
@@ -24,15 +24,9 @@ ROOTLIBS   =   $(shell root-config --glibs)
 ROOTINC    = -I$(shell root-config --incdir)
 
 
-RCNPANAPATH = ../GRAnalyzer/analyzer
-RCNPANALYZER = $(realpath $(RCNPANAPATH)/../lib)
-RCNPFLAGS = -DRCNP
-RCNPLINKFLAGS = -L$(RCNPANALYZER) -Wl,-rpath,$(RCNPANALYZER) -lRCNPEvent -lGRAnalyzer -L$(realpath $(RCNPANAPATH)/lib) -lpacklib -lm -lgfortran -lnsl
-RCNPINCLUDES = $(RCNPANAPATH)/include $(RCNPANAPATH)/libRCNPEvent/include $(RCNPANAPATH)/libGRAnalyzer/include
-
 
 # Flags to be passed to both C and C++ code
-CPPFLAGS = -Wall -Wextra -pedantic -g -O3 $(RCNPFLAGS)
+CPPFLAGS = -Wall -Wextra -pedantic -g -O3
 
 # Flags to be passed to C code
 CFLAGS   =
@@ -42,10 +36,10 @@ CXXFLAGS =  $(ROOTCFLAGS)
 
 
 # Flags to be passed to the linker, prior to listing of object files.
-LDFLAGS  = $(ROOTLIBS) $(GRUTLIBS) $(RCNPLINKFLAGS)
+LDFLAGS  = $(ROOTLIBS) $(GRUTLIBS)
 
 # Flags to be passed to the linker, after the listing of object files.
-LDLIBS   = $(ROOTLIBS) -L$(GRUTLIBDIR) -Wl,-rpath,$(GRUTLIBDIR) $(RCNPLINKFLAGS)
+LDLIBS   = $(ROOTLIBS) -L$(GRUTLIBDIR) -Wl,-rpath,$(GRUTLIBDIR)
 
 # A list of directories containing source files containing "int
 # main()".  Each file will be compiled into a separate executable.
@@ -58,7 +52,7 @@ SRC_DIRECTORIES = src
 
 # A list of directories containing include files.  Each directory will
 # be made available for #include directives for included files.
-INC_DIRECTORIES = include $(GRUTINC) $(RCNPINCLUDES)
+INC_DIRECTORIES = include $(GRUTINC)
 
 # A list of directories that contain libraries.  The list can also
 # contain patterns that expand to directories that contain libraries.
