@@ -13,7 +13,7 @@ RM       = rm -f
 GRUTCONFIG= ../bin/grutinizer-config
 # Path to analysis library
 GRUTLIBS = $(shell $(GRUTCONFIG) --all-libs)
-GRUTLIBS += -lSourceData -lTCagra -lTGrandRaiden -lTNSCLScalers -lRCNPEvent -lGRAnalyzer -lSpectrum -lPyROOT -lTMVA
+GRUTLIBS += -lSourceData -lTCagra -lTGrandRaiden -lTNSCLScalers -lRCNPEvent -lGRAnalyzer -lSpectrum -lPyROOT -lTMVA -lTLenda
 GRUTINC= ../include
 GRUTLIBDIR=../lib
 
