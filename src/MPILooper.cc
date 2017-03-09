@@ -104,9 +104,10 @@ void MPILooper::Finalize(){
     std::string grutpath = getenv("GRUTSYS");
     stringstream cmd; cmd.str(""); cmd << grutpath+"/util/gadd_fast.py -f " << m_outputpath.c_str() << " " << m_path.c_str() << "*";
     std::cout << cmd.str() << std::endl;
-    system(cmd.str().c_str());
+    if(system(cmd.str().c_str()) == 0) {
+      m_string.str(""); m_string << "rm -rf " << m_path; system(m_string.str().c_str());
+    }
   }
-
 }
 
 void MPILooper::Run() {
@@ -141,7 +142,6 @@ void MPILooper::Run() {
 }
 
 MPILooper::~MPILooper() {
-  if (m_rank==0){m_string.str(""); m_string << "rm -rf " << m_path; system(m_string.str().c_str());}
 
   MPI_Finalize();
 }
