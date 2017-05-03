@@ -20,6 +20,7 @@
 #include <TCutG.h>
 //#include <TSelectorList.h>
 #include "TGRUTOptions.h"
+#include "TGRUTint.h"
 
 
 MPILooper::MPILooper(vector<string> inputlist)
@@ -29,6 +30,7 @@ MPILooper::MPILooper(vector<string> inputlist)
   MPI_Comm_size(MPI_COMM_WORLD, &m_size);
   MPI_Comm_rank(MPI_COMM_WORLD, &m_rank);
   m_chain = make_shared<TChain>("EventTree");
+  gChain = m_chain.get();
 
   // add all input files to the TChain
   for(auto fn : inputlist) {
@@ -112,9 +114,8 @@ void MPILooper::Finalize(){
 
 void MPILooper::Run() {
   Setup();
-  for (int i=m_lowerbound; i<m_upperbound; i++) {
+  auto ProcessEvent = [&](int i) {
     if (m_rank == 0) {    loadBar(i, m_threadcount, 1000, 50);    }
-    //Process(i);
     for(auto& elem : det_map){
       *elem.second = (TDetector*)elem.first->New();
     }
@@ -131,10 +132,11 @@ void MPILooper::Run() {
     }
     compiled_histograms.Fill(*event);
     delete event;
+  };
 
-    // DEBUG FOR TESTING
-    //if (i>10000) break;
-
+  ProcessEvent(0); // all threads process the first event for timestamp info
+  for (int i=m_lowerbound; i<m_upperbound; i++) {
+    ProcessEvent(i);
   }
   if (m_rank == 0) { cout << endl; }
   this->Finalize();
